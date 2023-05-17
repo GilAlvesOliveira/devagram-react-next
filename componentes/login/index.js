@@ -35,13 +35,13 @@ export default function Login() {
                     <InputPublico
                         imagem={imagemChave}
                         texto="Senha"
-                        tipo="passoword"
+                        tipo="password"
                         aoAlterarValor={e => setSenha(e.target.value)}
                         valor={senha}
                     />
 
                     <Botao
-                        texto={'Login'}
+                        texto="Login"
                         tipo="submit"
                         desabilitado={false}
                     />
@@ -49,7 +49,7 @@ export default function Login() {
 
                 <div className="rodapePaginaPublica">
                     <p>Não possui uma conta?</p>
-                    <Link href="cadastro.js">Faça seu cadastro agora!</Link>
+                    <Link href="/cadastro">Faça seu cadastro agora!</Link>
                 </div>
             </div>
         </section>
