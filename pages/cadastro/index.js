@@ -9,6 +9,7 @@ import imagemChave from "../../public/imagens/chave.svg";
 import InputPublico from "@/componentes/inputPublico";
 import { UploadImagem } from "../../componentes/uploadImagem";
 import { useState } from "react";
+import {validarEmail, validarSenha, validarNome, validarConfirmacaoSenha} from "../../utils/validadores";
 
 export default function Cadastro() {
     const [imagem, setImagem] = useState(null);

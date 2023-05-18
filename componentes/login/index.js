@@ -6,6 +6,7 @@ import imagemLogo from "../../public/imagens/logo.svg";
 import Botao from "../botao";
 import Link from "next/link";
 import { useState } from "react";
+import { validarEmail, validarSenha} from "../../utils/validadores";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -30,6 +31,8 @@ export default function Login() {
                         tipo="email"
                         aoAlterarValor={e => setEmail(e.target.value)}
                         valor={email}
+                        mensagemValidacao="O endereço informado é invalido"
+                        exibirMensagemValidacao={email && !validarEmail(email)}
                     />
 
                     <InputPublico
@@ -38,6 +41,8 @@ export default function Login() {
                         tipo="password"
                         aoAlterarValor={e => setSenha(e.target.value)}
                         valor={senha}
+                        mensagemValidacao="Precisa ter pelo menos 3 caracteres"
+                        exibirMensagemValidacao={senha && !validarSenha(senha)}
                     />
 
                     <Botao
