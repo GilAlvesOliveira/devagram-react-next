@@ -12,6 +12,13 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
 
+    const validarFormulario = () => {
+        return ( 
+            validarEmail(email)
+            && validarSenha(senha)
+        );
+    }
+
     return (
         <section className={`paginaLogin paginaPublica`}>
             <div className="logoContainer">
@@ -48,7 +55,7 @@ export default function Login() {
                     <Botao
                         texto="Login"
                         tipo="submit"
-                        desabilitado={false}
+                        desabilitado={!validarFormulario()}
                     />
                 </form>
 

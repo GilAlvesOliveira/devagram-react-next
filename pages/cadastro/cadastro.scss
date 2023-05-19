@@ -1,8 +1,9 @@
 .paginaCadastro {
     .uploadImagemContainer {
         text-align: center;
-        margin-bottom: 48px;
         position: relative;
+        margin-bottom: 48px;
+        cursor: pointer;
 
         .avatarPreview {
             height: 120px;
@@ -15,9 +16,9 @@
             height: 48px;
             position: absolute;
             right: 0;
-            margin: auto;
             left: 90px;
             bottom: 0px;
+            margin: auto;
         }
     }
 
