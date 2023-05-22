@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function InputPublico ({
+export default function InputPublico({
     imagem,
     tipo,
     texto,
@@ -8,7 +8,7 @@ export default function InputPublico ({
     exibirMensagemValidacao = false,
     mensagemValidacao = "",
     aoAlterarValor
-}){
+}) {
     return (
         <div className="inputPublicoContainer">
             <div className="inputPublico">
@@ -30,5 +30,5 @@ export default function InputPublico ({
 
             {exibirMensagemValidacao && <p className="mensagemValidacao">{mensagemValidacao}</p>}
         </div>
-    )
+    );
 }
