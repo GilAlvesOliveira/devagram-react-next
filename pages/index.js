@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Login from "../componentes/login";
 import UsuarioService from "../services/UsuarioService";
+import Home from "@/componentes/home";
 
 const usuarioService = new UsuarioService();
 export default function Index() {
@@ -17,5 +18,5 @@ export default function Index() {
     return <Home />;
   }
   
-  return <Login />;
+  return <Login aposAutenticado={() => setEstaAutenticado(true)} />;
   }
