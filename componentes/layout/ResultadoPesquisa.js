@@ -1,10 +1,10 @@
-import Avatar from "../avatar";
+import Avatar from '../avatar';
 
-export default function ResultadoPesquisa({nome, email, avatar, onClick, id}) {
+export default function ResultadoPesquisa({ nome, email, avatar, onClick, id }) {
     return (
-        <div className="resultdoPesquisa" onClick={()=> onClick(id)}>
-            <Avatar src={avatar}/>
-            <div className="informacoesUsuario">
+        <div className="resultadoPesquisa" onClick={() => onClick(id)}>
+            <Avatar src={avatar} />
+            <div className='informacoesUsuario'>
                 <strong>{nome}</strong>
                 <span>{email}</span>
             </div>

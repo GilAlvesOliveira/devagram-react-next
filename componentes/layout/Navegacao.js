@@ -6,7 +6,7 @@ import imgPublicacaoCinza from '../../public/imagens/publicacaoCinza.svg';
 import imgUsuarioAtivo from '../../public/imagens/usuarioAtivo.svg';
 import imgUsuarioCinza from '../../public/imagens/usuarioCinza.svg';
 
-export default function Navegacao({ className}) {
+export default function Navegacao({ className }) {
     return (
         <nav className={`barraNavegacao ${className}`}>
             <ul>

@@ -1,6 +1,6 @@
-import comAutorizacao from "@/hoc/comAutorizacao";
+import comAutorizacao from "../../hoc/comAutorizacao";
 
- function Home() {
+function Home() {
     return (
         <h1>Home</h1>
     );
