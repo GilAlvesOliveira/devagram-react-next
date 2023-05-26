@@ -5,8 +5,29 @@ import imgPublicacaoAtivo from '../../public/imagens/publicacaoAtivo.svg';
 import imgPublicacaoCinza from '../../public/imagens/publicacaoCinza.svg';
 import imgUsuarioAtivo from '../../public/imagens/usuarioAtivo.svg';
 import imgUsuarioCinza from '../../public/imagens/usuarioCinza.svg';
+import { useState } from 'react';
+
+const mapaDeRotas = {
+    home: {
+        imagemAtivo: imgHomeAtivo,
+        rotasAtivacao: ['/'],
+        imagemPadrao: imgHomeCinza
+    },
+    publicacao: {
+        imagemAtivo: imgPublicacaoAtivo,
+        rotasAtivacao: ['/publicacao'],
+        imagemPadrao: imgPublicacaoCinza
+    },
+    perfil: {
+        imagemAtivo: imgUsuarioAtivo,
+        rotasAtivacao: ['/perfil/eu', '/perfil/eu/editar'],
+        imagemPadrao: imgUsuarioCinza
+    }
+}
 
 export default function Navegacao({ className }) {
+    const [rotaAtiva, setRotaAtiva] = useState('home')
+
     return (
         <nav className={`barraNavegacao ${className}`}>
             <ul>
