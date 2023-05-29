@@ -18,15 +18,15 @@ export default function Cabecalho() {
         setTermoPesquisado(e.target.value);
         setResultadoPesquisa([]);
 
-        if (termoPesquisado.length < 3) {
+        if (e.target.value.length < 3) {
             return;
         }
 
         try {
             const { data } = await usuarioService.pesquisar(termoPesquisado);
             setResultadoPesquisa(data);
-        } catch (error) {
-            alert('Erro ao pesquisar usuario. ' + error?.response?.data?.erro);
+        } catch (e) {
+            alert('Erro ao pesquisar usuario. ' + e?.response?.data?.erro);
         }
     }
 

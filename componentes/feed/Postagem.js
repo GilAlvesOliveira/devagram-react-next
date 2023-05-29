@@ -1,12 +1,12 @@
 import { useState } from "react";
 import Link from "next/link";
-import Avatar from "../avatar";
 import Image from "next/image";
+import Avatar from "../avatar";
 
-import imgCurtir from "../../public/imagens/curtir.svg"
-import imgCurtido from "../../public/imagens/curtido.svg"
-import imgComentarioAtivo from "../../public/imagens/comentarioAtivo.svg"
-import imgComentarioCinza from "../../public/imagens/comentarioCinza.svg"
+import imgCurtir from '../../public/imagens/curtir.svg';
+import imgCurtido from '../../public/imagens/curtido.svg';
+import imgComentarioAtivo from '../../public/imagens/comentarioAtivo.svg';
+import imgComentarioCinza from '../../public/imagens/comentarioCinza.svg';
 import { FazerComentario } from "./FazerComentario";
 
 const tamanhoLimiteDescricao = 89;
@@ -83,7 +83,7 @@ export default function Postagem({
                         {descricaoMaiorQueLimite() && (
                             <span
                                 onClick={exibirDescricaoCompleta}
-                                className="exibirDescricaoCompleta ">
+                                className="exibirDescricaoCompleta">
                                 mais
                             </span>
                         )}
@@ -92,7 +92,7 @@ export default function Postagem({
 
                 <div className="comentariosDaPublicacao">
                     {comentarios.map((comentario, i) => (
-                        <div className="comantario" key={i}>
+                        <div className="comentario" key={i}>
                             <strong className="nomeUsuario">{comentario.nome}</strong>
                             <p className="descricao">{comentario.mensagem}</p>
                         </div>

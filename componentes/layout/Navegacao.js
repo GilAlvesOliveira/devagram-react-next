@@ -1,12 +1,12 @@
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import imgHomeAtivo from '../../public/imagens/homeAtivo.svg';
 import imgHomeCinza from '../../public/imagens/homeCinza.svg';
 import imgPublicacaoAtivo from '../../public/imagens/publicacaoAtivo.svg';
 import imgPublicacaoCinza from '../../public/imagens/publicacaoCinza.svg';
 import imgUsuarioAtivo from '../../public/imagens/usuarioAtivo.svg';
 import imgUsuarioCinza from '../../public/imagens/usuarioCinza.svg';
-import { useRouter } from 'next/router';
 
 const mapaDeRotas = {
     home: {
@@ -28,12 +28,12 @@ const mapaDeRotas = {
 
 export default function Navegacao({ className }) {
     const [rotaAtiva, setRotaAtiva] = useState('home');
-    const router =useRouter();
+    const router = useRouter();
 
     useEffect(() => {
         definirRotaAtiva();
     }, [router.asPath]);
-
+    
     const definirRotaAtiva = () => {
         const chavesDoMapaDeRotas = Object.keys(mapaDeRotas);
         const indiceAtivo = chavesDoMapaDeRotas.findIndex(chave => {
@@ -43,9 +43,9 @@ export default function Navegacao({ className }) {
         });
 
         if (indiceAtivo === -1) {
-            setRotaAtiva('Home');
+            setRotaAtiva('home');
         } else {
-            setRotaAtiva(chavesDoMapaDeRotas[indiceAtivo]); 
+            setRotaAtiva(chavesDoMapaDeRotas[indiceAtivo]);
         }
     }
 
@@ -63,7 +63,7 @@ export default function Navegacao({ className }) {
         setRotaAtiva(nomeRota);
         router.push(mapaDeRotas[nomeRota].rotasAtivacao[0])
     }
-    
+
     return (
         <nav className={`barraNavegacao ${className}`}>
             <ul>

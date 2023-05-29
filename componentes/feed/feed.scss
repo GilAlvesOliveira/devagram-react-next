@@ -4,7 +4,6 @@
     margin-top: 16px;
 
     .postagem {
-
         .avatar {
             height: 32px;
             width: 32px;
@@ -15,7 +14,7 @@
             display: flex;
             align-items: center;
             padding: 0 12px;
-            margin-top: 8px;
+            margin-bottom: 8px;
 
             strong {
                 font-size: 12px;
@@ -27,7 +26,7 @@
             img {
                 width: 100%;
                 height: auto;
-                max-width: 360px;
+                max-height: 360px;
                 object-fit: cover;
             }
         }
@@ -71,6 +70,7 @@
 
                     strong {
                         font-size: 10px;
+                        color: $cinza4;
                     }
                 }
             }
@@ -78,8 +78,8 @@
 
         .containerFazerComentario {
             display: flex;
+            align-items: center;
             padding: 0 12px;
-            width: 100%;
             margin-bottom: 16px;
 
             textarea {
@@ -92,9 +92,9 @@
                 color: $cinza2;
             }
         }
+    }
 
     @media screen and (min-width: $desktopBreakpoint) {
         padding-top: 8px;
-        }
     }
 }
