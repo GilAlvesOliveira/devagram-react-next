@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import FeedService from "../../services/FeedService";
 import Postagem from "./Postagem";
-
-const feedService = new FeedService();
 
 export function Feed({ usuarioLogado }) {
     const [listaDePostagens, setListaDePostagens] = useState([]);
 
-    useEffect(async () => {
-        const { data } = await feedService.carregarPostagens(); 
-        console.log(data);
-
+    useEffect(() => {
+        console.log('carregar o feed');
         setListaDePostagens([
             {
                 id: '1',
@@ -19,13 +14,21 @@ export function Feed({ usuarioLogado }) {
                     nome: 'Gilmar Oliveira',
                     avatar: null
                 },
-                fotoDoPost: 'https://img.freepik.com/fotos-gratis/respingo-colorido-abstrato-3d-background-generativo-ai-background_60438-2509.jpg',
+                fotoDoPost: 'https://s1.static.brasilescola.uol.com.br/be/conteudo/images/imagem-em-lente-convexa.jpg',
                 descricao: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to m',
                 curtidas: [],
                 comentarios: [
                     {
                         nome: 'Fulano',
                         mensagem: 'Muito legal'
+                    },
+                    {
+                        nome: 'Fulano de tal',
+                        mensagem: 'Imagem muito bacana!'
+                    },
+                    {
+                        nome: 'Fulano da esquina',
+                        mensagem: 'Isso ai! continue assim'
                     }
                 ]
             },
@@ -33,10 +36,10 @@ export function Feed({ usuarioLogado }) {
                 id: '2',
                 usuario: {
                     id: '2',
-                    nome: 'Ana Cristina',
+                    nome: 'Ana Cristana',
                     avatar: null
                 },
-                fotoDoPost: 'https://ciclovivo.com.br/wp-content/uploads/2018/10/iStock-536613027.jpg',
+                fotoDoPost: 'https://cdn.pixabay.com/photo/2012/11/21/17/02/lion-66898_960_720.jpg',
                 descricao: 'Neque porro quisquam est qui dolorem ipsum olor sit amet, consectetur, adipisci velit',
                 curtidas: [],
                 comentarios: [
