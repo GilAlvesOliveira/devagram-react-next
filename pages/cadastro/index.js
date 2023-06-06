@@ -61,7 +61,7 @@ export default function Cadastro() {
             router.push('/');
         } catch (error) {
             alert(
-                "Erro ao cadastrar usuario. " + error?.response?.data?.erro
+                "Erro ao cadastrar usuario. " + error?.response?.data
             );
         }
 
