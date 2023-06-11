@@ -12,23 +12,25 @@ export default function CabecalhoPerfil({
                 iconeEsquerda={imgSetaEsquerda}
                 titulo={usuario.nome}
             />
+
+            <hr className='bordaCabecalhoPerfil' />
             
             <div className='statusPerfil'>
                 <Avatar src={usuario.avatar} />
                 <div className='informacoesPerfil'>
                     <div className='statusContainer'>
                         <div className='status'>
-                            <strong>15</strong>
+                            <strong>{usuario.publicacoes}</strong>
                             <span>Publicações</span>
                         </div>
 
                         <div className='status'>
-                            <strong>120</strong>
+                            <strong>{usuario.seguidores}</strong>
                             <span>Seguidores</span>
                         </div>
 
                         <div className='status'>
-                            <strong>135</strong>
+                            <strong>{usuario.seguindo}</strong>
                             <span>Seguindo</span>
                         </div>
                     </div>
