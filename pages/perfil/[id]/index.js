@@ -19,13 +19,14 @@ function Perfil({ usuarioLogado }) {
             alert(`Erro ao obter perfil do usuario!`);
         }
     }
-
         useEffect(() => {
             if (!router.query.id) {
                 return;
             }
-            const dadosPerfil = obterPerfil(router.query.id);
-            console.log(dadosPerfil);
+            const buscarDados = async () => 
+                await obterPerfil(router.query.id);
+            setUsuario(buscarDados());
+            
         }, [router.query.id]);
 
     return (
@@ -34,7 +35,10 @@ function Perfil({ usuarioLogado }) {
                 usuarioLogado={usuarioLogado}
                 usuario={usuario}
             />
-            <Feed usuarioLogado={usuarioLogado} />
+            <Feed
+                usuarioLogado={usuarioLogado}
+                idUsuario={usuario?._id}
+            />
         </div>
     );
 }

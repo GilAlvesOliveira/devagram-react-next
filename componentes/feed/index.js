@@ -10,11 +10,10 @@ export default function Feed({ usuarioLogado, idUsuario }) {
   useEffect(() => {
     const carregarPostagens = async () => {
       const { data } = await feedService.carregarPostagens(idUsuario);
-
       const postagensFormatadas = data.map((postagem) => ({
         id: postagem._id,
         usuario: {
-          id: postagem.userId,
+          id: postagem.idUsuario,
           nome: postagem.usuario.nome,
           avatar: postagem.usuario.avatar
         },
@@ -26,7 +25,6 @@ export default function Feed({ usuarioLogado, idUsuario }) {
           mensagem: c.comentario
         }))
       }));
-
       setListaDePostagens(postagensFormatadas);
     };
 

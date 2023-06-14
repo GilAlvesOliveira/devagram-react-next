@@ -10,7 +10,7 @@ export default function CabecalhoPerfil({
         <div className='cabecalhoPerfil largura30pctDesktop'>
             <CabecalhoComAcoes
                 iconeEsquerda={imgSetaEsquerda}
-                titulo={usuario.nome}
+                titulo={usuario?.nome}
             />
 
             <hr className='bordaCabecalhoPerfil' />
@@ -20,17 +20,17 @@ export default function CabecalhoPerfil({
                 <div className='informacoesPerfil'>
                     <div className='statusContainer'>
                         <div className='status'>
-                            <strong>7</strong>
+                            <strong>{usuario?.publicacoes}</strong>
                             <span>Publicações</span>
                         </div>
 
                         <div className='status'>
-                            <strong>15</strong>
+                            <strong>{usuario?.seguidores}</strong>
                             <span>Seguidores</span>
                         </div>
 
                         <div className='status'>
-                            <strong>20</strong>
+                            <strong>{usuario?.seguindo}</strong>
                             <span>Seguindo</span>
                         </div>
                     </div>

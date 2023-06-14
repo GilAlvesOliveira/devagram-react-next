@@ -97,7 +97,6 @@ export default function Postagem({
         ? imgCurtido
         : imgCurtir;
     }
-
     return (
         <div className="postagem">
             <Link href={`/perfil/${usuario.id}`}>
