@@ -13,20 +13,30 @@ function Perfil({ usuarioLogado }) {
 
     const obterPerfil = async (idUsuario) => {
         try {
-            const { data } = await usuarioService.obterPerfil(idUsuario);
-            setUsuario(data);
+            const { data } = await usuarioService.obterPerfil(
+                estaNoPerfilPessoal()
+                    ? usuarioLogado.id
+                    : idUsuario
+                );
+            return data;
         } catch (error) {
             alert(`Erro ao obter perfil do usuario!`);
         }
     }
+
+    const estaNoPerfilPessoal = () => {
+        return router.query.id === 'eu';
+    }
+
         useEffect(() => {
             if (!router.query.id) {
                 return;
             }
-            const buscarDados = async () => 
-                await obterPerfil(router.query.id);
-            setUsuario(buscarDados());
-            
+            const buscarDados = async () => {
+             const dados = await obterPerfil(router.query.id);
+            setUsuario(dados);
+            }
+            buscarDados();
         }, [router.query.id]);
 
     return (
@@ -34,6 +44,7 @@ function Perfil({ usuarioLogado }) {
             <CabecalhoPerfil
                 usuarioLogado={usuarioLogado}
                 usuario={usuario}
+                estaNoPerfilPessoal={estaNoPerfilPessoal()}
             />
             <Feed
                 usuarioLogado={usuarioLogado}

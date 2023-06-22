@@ -37,7 +37,7 @@ export default function CabecalhoPerfil({
     }
 
     const obterCorDoBotaoSeguir = () => {
-        if (estaSeguindoOUsuario) {
+        if (estaSeguindoOUsuario || estaNoPerfilPessoal) {
             return 'invertido';
         }
 
