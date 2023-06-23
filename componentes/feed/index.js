@@ -4,7 +4,7 @@ import FeedService from "@/services/FeedService";
 
 const feedService = new FeedService();
 
-export default function Feed({ usuarioLogado, idUsuario }) {
+export default function Feed({ usuarioLogado, idUsuario, usuario }) {
   const [listaDePostagens, setListaDePostagens] = useState([]);
 
   useEffect(() => {
@@ -16,6 +16,8 @@ export default function Feed({ usuarioLogado, idUsuario }) {
         id: postagem._id,
         usuario: {
           id: postagem.idUsuario,
+          nome: postagem?.usuario?.nome || usuario?.nome,
+          avatar: postagem?.usuario?.avatar || usuario?.avatar
         },
         fotoDoPost: postagem.foto,
         descricao: postagem.descricao,
@@ -29,7 +31,7 @@ export default function Feed({ usuarioLogado, idUsuario }) {
     };
 
     carregarPostagens();
-  }, [usuarioLogado, idUsuario]);
+  }, [usuarioLogado, idUsuario, usuario]);
 
   if (!listaDePostagens.length) {
     return null;
