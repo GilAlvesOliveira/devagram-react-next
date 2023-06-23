@@ -1,10 +1,12 @@
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Image from 'next/image'
 import imgSetaEsquerda from '../../public/imagens/setaEsquerda.svg';
+import imgLogout from '../../public/imagens/logout.svg';
 import CabecalhoComAcoes from '../cabecalhoComAcoes';
 import Botao from '../botao';
 import Avatar from '../avatar';
-import { useEffect, useState } from 'react';
 import UsuarioService from '@/services/UsuarioService';
-import { useRouter } from 'next/router';
 
 const usuarioService = new UsuarioService();
 
@@ -66,12 +68,26 @@ export default function CabecalhoPerfil({
         router.back();
     }
 
+    const logout = () => {
+        usuarioService.logout();
+        router.push('/');
+    }
+ 
     return (
         <div className='cabecalhoPerfil largura30pctDesktop'>
             <CabecalhoComAcoes
-                iconeEsquerda={imgSetaEsquerda}
+                iconeEsquerda={estaNoPerfilPessoal ? null : imgSetaEsquerda}
                 aoClicarAcaoEsquerda={aoClicarSetaEsquerda}
                 titulo={usuario.nome}
+                elementoDireita={
+                    <Image
+                        src={imgLogout}
+                        alt="icone logout"
+                        onClick={logout}
+                        width={25}
+                        height={25}
+                     />
+                }
             />
 
             <hr className='bordaCabecalhoPerfil' />

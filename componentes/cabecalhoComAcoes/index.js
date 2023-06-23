@@ -28,13 +28,7 @@ export default function CabecalhoComAcoes({
 
             <h3>{titulo}</h3>
 
-            {elementoDireita && (
-                <button
-                    type='button'
-                >
-                    {elementoDireita}
-                </button>
-            )}
+            {elementoDireita || null}
         </div>
     )
 }
