@@ -1,24 +1,49 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CabecalhoComAcoes from "@/componentes/cabecalhoComAcoes";
 import UploadImagem from "@/componentes/uploadImagem";
 import comAutorizacao from "@/hoc/comAutorizacao"
 import imgAvatarPadrao from '../../public/imagens/avatar.svg';
 import imgLimpar from '../../public/imagens/limpar.svg';
+import UsuarioService from "@/services/UsuarioService";
 
-function EditarPerfil() {
+const usuarioService = new UsuarioService();
+
+function EditarPerfil({ usuarioLogado }) {
     const [avatar, setAvatar] = useState();
     const [nome, setNome] = useState('');
     const [inputAvatar, setInputAvatar] = useState();
     const router = useRouter();
+
+    useEffect(() => {
+        if (!usuarioLogado) {
+            return;
+        }
+
+        setNome(usuarioLogado.nome);
+        setAvatar({
+            preview: usuarioLogado.avatar
+        });
+    }, []);
+
+    const atualizarPerfil = async () => {
+        try {
+            if (!validarNome(nome)) {
+                alert('Nome precisa de pelo menos 2 caracteres!');
+                return;
+            }
+        } catch {
+            alert(`Erro ao editar perfil`);
+        }
+    }
 
     const aoCancelarEdicao = () => {
         router.push('/perfil/eu');
     }
 
     const abrirSeletorArquivos = () => {
-        console.log("abrir seletor de arquivos");
+        inputAvatar?.click();
     }
 
     return (
@@ -29,7 +54,7 @@ function EditarPerfil() {
                     aoClicarAcaoEsquerda={aoCancelarEdicao}
                     textoEsquerda='Cancelar'
                     elementoDireita={'Concluir'}
-                    aoClicarElementoDireita={() => console.log('clicou elemento direita')}
+                    aoClicarElementoDireita={atualizarPerfil}
                 />
 
             <hr className='linhaDivisoria' />
