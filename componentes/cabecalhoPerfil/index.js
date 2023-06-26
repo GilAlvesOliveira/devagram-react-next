@@ -72,6 +72,22 @@ export default function CabecalhoPerfil({
         usuarioService.logout();
         router.push('/');
     }
+
+    const obterElementoDiteitaCabecalho = () => {
+        if (estaNoPerfilPessoal) {
+            return (
+                <Image
+                    src={imgLogout}
+                    alt='icone logout'
+                    onClick={logout}
+                    width={23}
+                    height={23}
+                />
+            );
+        }
+
+        return null;
+    }
  
     return (
         <div className='cabecalhoPerfil largura30pctDesktop'>
@@ -79,15 +95,7 @@ export default function CabecalhoPerfil({
                 iconeEsquerda={estaNoPerfilPessoal ? null : imgSetaEsquerda}
                 aoClicarAcaoEsquerda={aoClicarSetaEsquerda}
                 titulo={usuario.nome}
-                elementoDireita={
-                    <Image
-                        src={imgLogout}
-                        alt="icone logout"
-                        onClick={logout}
-                        width={25}
-                        height={25}
-                     />
-                }
+                elementoDireita={obterElementoDiteitaCabecalho()}
             />
 
             <hr className='bordaCabecalhoPerfil' />
