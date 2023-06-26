@@ -6,6 +6,7 @@ import UploadImagem from "@/componentes/uploadImagem";
 import comAutorizacao from "@/hoc/comAutorizacao"
 import imgAvatarPadrao from '../../public/imagens/avatar.svg';
 import imgLimpar from '../../public/imagens/limpar.svg';
+import { validarNome } from "@/utils/validadores";
 import UsuarioService from "@/services/UsuarioService";
 
 const usuarioService = new UsuarioService();
@@ -33,6 +34,22 @@ function EditarPerfil({ usuarioLogado }) {
                 alert('Nome precisa de pelo menos 2 caracteres!');
                 return;
             }
+
+            const corpoRequisicao = new FormData();
+            corpoRequisicao.append('nome', nome);
+
+            if (avatar.arquivo) {
+                corpoRequisicao.append('file', avatar.arquivo);
+            }
+
+            await usuarioService.atualizarPerfil(corpoRequisicao);
+            localStorage.setItem('nome', nome);
+
+            if (avatar.arquivo) {
+                localStorage.setItem('avatar', avatar.preview);
+            }
+
+            router.push('/perfil/eu');
         } catch {
             alert(`Erro ao editar perfil`);
         }
