@@ -98,7 +98,7 @@ export default function CabecalhoPerfil({
                 elementoDireita={obterElementoDiteitaCabecalho()}
             />
 
-            <hr className='bordaCabecalhoPerfil' />
+            <hr className='linhaDivisoria' />
             
             <div className='statusPerfil'>
                 <Avatar src={usuario.avatar} />

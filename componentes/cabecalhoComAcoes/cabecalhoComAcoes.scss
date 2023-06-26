@@ -10,11 +10,28 @@
         flex: 1;
     }
 
+    .cabecalhoComAcoestextoEsquerda {
+        font-size: 12PX;
+        color: $cinza3;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
     .btnAcaoDireita {
         border: none;
         background-color: transparent;
         padding: 0;
         margin: 0;
         cursor: pointer;
+        color: $corPrimaria;
+        font-family: $fontBold;
+        font-size: 12px;
+    }
+
+    @media screen and (min-width: $desktopBreakpoint) {
+        .cabecalhoComAcoestextoEsquerda, .btnAcaoDireita {
+            font-size: 14px;
+        }
     }
 }
