@@ -8,7 +8,8 @@ import imagemSetaEsquerda from '../../public/imagens/setaEsquerda.svg';
 
 
 function Publicacao(){
-    const [imagem, setImagem]= useState();
+    const [imagem, setImagem] = useState();
+    const [descricao, setDescricao] = useState();
     const [inputImagem, setInputImagem] = useState();
     const [etapaAtual, setEtapaAtual] = useState(1);
 
@@ -48,9 +49,27 @@ function Publicacao(){
         setEtapaAtual(2);
     }
 
+    const escreverDescricao = (e) => {
+        const valorAtual = e.target.value;
+        if (valorAtual.length >= limiteDaDescricao) {
+            return;
+        }
+
+        setDescricao(valorAtual);
+    }
+
+    const obterClassNameCabecalho = () => {
+        if (estaNaEtapaUm()) {
+            return 'primeiraEtapa';
+        }
+
+        return 'segundaEtapa';
+    }
+
     return (
         <div className="paginaPublicacao largura30pctDesktop">
             <CabecalhoComAcoes
+                className={obterClassNameCabecalho}
                 iconeEsquerda={estaNaEtapaUm() ? null : imagemSetaEsquerda}
                 textoEsquerda={obterTextoEsquerdaCabecalho()}
                 aoClicarAcaoEsquerda={aoClicarAcaoEsquerdaCabecalho}
@@ -80,9 +99,23 @@ function Publicacao(){
                         />
                         </div>
                     ) : (
+                        <>
                         <div className="segundaEtapa">
-                            
+                            <UploadImagem
+                                setImagem={setImagem}
+                                imagemPreview={imagem?.preview}
+                            />
+
+                            <textarea
+                                rows={3}
+                                value={descricao}
+                                placeholder="Escreva uma legenda"
+                                onChange={e => setDescricao(e.target.value)}
+                            ></textarea>
+
                         </div>
+                        <hr className='linhaDivisoria' />
+                        </>
                     )}
             </div>
         </div>

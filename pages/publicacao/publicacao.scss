@@ -1,6 +1,17 @@
 .paginaPublicacao {
     background-color: $branco;
 
+    .cabecalhoComAcoes {
+        &.segundaEtapa {
+            >img {
+                cursor: pointer;
+            }
+            h3 {
+                padding-left: 17%;
+            }
+        }
+    }
+
     .conteudoPaginaPublicacao {
         .primeiraEtapa {
             display: flex;
@@ -37,6 +48,34 @@
                 padding: 12px;
             }
         }
+
+        .segundaEtapa {
+            display: flex;
+            padding: 16px;
+
+            .uploadImagemContainer {
+                .imagemPreviewContainer {
+                    width: 80px;
+                    height: 80px;
+
+                    img {
+                        height: 100%;
+                        width: 100%;
+                        object-fit: cover;
+                    }
+                }
+            }
+
+            textarea {
+                border: none;
+                outline: none;
+                resize: none;
+                font-size: 12px;
+                font-family: $fontLight;
+                flex: 1;
+                color: $cinza2;
+            }
+        }
     }
 
     @media screen and (min-width: $desktopBreakpoint) {
@@ -46,6 +85,7 @@
 
         .conteudoPaginaPublicacao {
             .primeiraEtapa {
+                cursor: pointer;
                 .uploadImagemContainer {
                     .imagemPreviewContainer {
                         margin-bottom: 20px;
@@ -63,6 +103,15 @@
                     }
                 }
             }
+
+           .segundaEtapa {
+            .uploadImagemContainer {
+                .imagemPreviewContainer {
+                    width: 160px;
+                    height: 160px;
+                }
+            }
+           } 
         }
     }
 }
