@@ -3,11 +3,12 @@
 
     .cabecalhoComAcoes {
         &.segundaEtapa {
-            >img {
+            img {
                 cursor: pointer;
             }
+
             h3 {
-                padding-left: 17%;
+                 padding-left: 17%;
             }
         }
     }
