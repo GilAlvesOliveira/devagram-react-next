@@ -43,4 +43,8 @@ export default class DevagramApiService {
     put(url, data) {
         return this.axios.put(url, data);
     }
+
+    delete(url) {
+        return this.axios.delete(url);
+    }
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Avatar from "../avatar";
-
+import deleteIcon from '../../public/imagens/excluir.svg';
 import imgCurtir from '../../public/imagens/curtir.svg';
 import imgCurtido from '../../public/imagens/curtido.svg';
 import imgComentarioAtivo from '../../public/imagens/comentarioAtivo.svg';
@@ -20,7 +20,8 @@ export default function Postagem({
     descricao,
     comentarios,
     usuarioLogado,
-    curtidas
+    curtidas,
+    onDelete
 }) {
     const [curtidasPostagem, setCurtidasPostagem] = useState(curtidas);
     const [comentariosPostagem, setComentariosPostagem] = useState(comentarios);
@@ -28,6 +29,30 @@ export default function Postagem({
     const [tamanhoAtualDaDescricao, setTamanhoAtualDaDescricao] = useState(
         tamanhoLimiteDescricao
     );
+    const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
+
+    const excluirPublicacao = async () => {
+        try {
+            await feedService.excluirPublicacao(id);
+            setMostrarModalExclusao(false);
+            onDelete(id);
+        } catch (e) {
+            alert(`Erro ao excluir publicação! ${e?.response?.data?.erro || ''}`);
+        }
+    }
+
+    const handleExcluirClick = () => {
+        setMostrarModalExclusao(true);
+    }
+
+    const confirmarExclusao = () => {
+        setMostrarModalExclusao(false);
+        excluirPublicacao();
+    }
+
+    const cancelarExclusao = () => {
+        setMostrarModalExclusao(false);
+    }
 
     const exibirDescricaoCompleta = () => {
         setTamanhoAtualDaDescricao(Number.MAX_SAFE_INTEGER);
@@ -42,7 +67,6 @@ export default function Postagem({
         if (descricaoMaiorQueLimite()) {
             mensagem += '...';
         }
-
         return mensagem;
     }
 
@@ -64,7 +88,7 @@ export default function Postagem({
                 }
             ]);
         } catch (e) {
-            alert(`Erro ao fazer comentario! ` + (e?.response?.data?.erro || ''));
+            alert(`Erro ao fazer comentario! ${e?.response?.data?.erro || ''}`);
         }
     }
 
@@ -76,35 +100,48 @@ export default function Postagem({
         try {
             await feedService.alterarCurtida(id);
             if (usuarioLogadoCurtiuPostagem()) {
-                //tiro o usuario logado da lista de curtidas
                 setCurtidasPostagem(
                     curtidasPostagem.filter(idUsuarioQueCurtiu => idUsuarioQueCurtiu !== usuarioLogado.id)
                 );
             } else {
-                //adiciona usuario logado na lista de curtidas
                 setCurtidasPostagem([
                     ...curtidasPostagem,
                     usuarioLogado.id
                 ]);
             }
         } catch (e) {
-            alert(`Erro ao alterar a curtida! ` + (e?.response?.data?.erro || ''));
+            alert(`Erro ao alterar a curtida! ${e?.response?.data?.erro || ''}`);
         }
     }
 
     const obterImagemCurtida = () => {
         return usuarioLogadoCurtiuPostagem()
-        ? imgCurtido
-        : imgCurtir;
+            ? imgCurtido
+            : imgCurtir;
     }
+
     return (
         <div className="postagem">
-            <Link href={`/perfil/${usuario.id}`}>
-                <section className="cabecalhoPostagem">
-                    <Avatar src={usuario.avatar} />
-                    <strong>{usuario.nome}</strong>
-                </section>
-            </Link>
+            <section className="cabecalhoPostagem">
+                <Link href={`/perfil/${usuario.id}`}>
+                    <div className="usuarioInfo">
+                        <Avatar src={usuario.avatar} />
+                        <strong>{usuario.nome}</strong>
+                    </div>
+                </Link>
+                {usuario.id === usuarioLogado.id && (
+                    <Image
+                        src={deleteIcon}
+                        alt="Excluir publicação"
+                        width={20}
+                        height={20}
+                        className="deleteIcon"
+                        onClick={handleExcluirClick}
+                        role="button"
+                        aria-label="Excluir publicação"
+                    />
+                )}
+            </section>
 
             <div className="fotoDaPostagem">
                 <img src={fotoDoPost} alt='foto da postagem' />
@@ -129,7 +166,7 @@ export default function Postagem({
                     />
 
                     <span className="quantidadeCurtidas">
-                        Curtido por <strong> {curtidasPostagem.length} pessoas</strong>
+                        Curtido por <strong>{curtidasPostagem.length} pessoas</strong>
                     </span>
                 </div>
 
@@ -160,6 +197,22 @@ export default function Postagem({
             {deveExibirSecaoParaComentar &&
                 <FazerComentario comentar={comentar} usuarioLogado={usuarioLogado} />
             }
+
+            {mostrarModalExclusao && (
+                <div className="modalOverlay">
+                    <div className="modal">
+                        <p>Deseja realmente excluir esta publicação?</p>
+                        <div className="modalButtons">
+                            <button className="modalButton confirm" onClick={confirmarExclusao}>
+                                Sim, excluir
+                            </button>
+                            <button className="modalButton cancel" onClick={cancelarExclusao}>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

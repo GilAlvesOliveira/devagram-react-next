@@ -7,27 +7,35 @@ const feedService = new FeedService();
 export default function Feed({ usuarioLogado, idUsuario, usuario }) {
   const [listaDePostagens, setListaDePostagens] = useState([]);
 
+  const handleDelete = (idExcluido) => {
+    setListaDePostagens(listaDePostagens.filter(postagem => postagem.id !== idExcluido));
+  };
+
   useEffect(() => {
     setListaDePostagens([]);
     const carregarPostagens = async () => {
-      const { data } = await feedService.carregarPostagens(idUsuario);
-      console.log(data);
-      const postagensFormatadas = data.map((postagem) => ({
-        id: postagem._id,
-        usuario: {
-          id: postagem.idUsuario,
-          nome: postagem?.usuario?.nome || usuario?.nome,
-          avatar: postagem?.usuario?.avatar || usuario?.avatar
-        },
-        fotoDoPost: postagem.foto,
-        descricao: postagem.descricao,
-        curtidas: postagem.likes,
-        comentarios: postagem.comentarios.map((c) => ({
-          nome: c.nome,
-          mensagem: c.comentario
-        }))
-      }));
-      setListaDePostagens(postagensFormatadas);
+      try {
+        const { data } = await feedService.carregarPostagens(idUsuario);
+        console.log(data);
+        const postagensFormatadas = data.map((postagem) => ({
+          id: postagem._id,
+          usuario: {
+            id: postagem.idUsuario,
+            nome: postagem?.usuario?.nome || usuario?.nome,
+            avatar: postagem?.usuario?.avatar || usuario?.avatar
+          },
+          fotoDoPost: postagem.foto,
+          descricao: postagem.descricao,
+          curtidas: postagem.likes,
+          comentarios: postagem.comentarios.map((c) => ({
+            nome: c.nome,
+            mensagem: c.comentario
+          }))
+        }));
+        setListaDePostagens(postagensFormatadas);
+      } catch (e) {
+        console.error('Erro ao carregar postagens:', e);
+      }
     };
 
     carregarPostagens();
@@ -39,14 +47,14 @@ export default function Feed({ usuarioLogado, idUsuario, usuario }) {
 
   return (
     <div className="feedContainer largura30pctDesktop">
-        {listaDePostagens.map((dadosPostagem) => (
-          <Postagem
-            key={dadosPostagem.id}
-            {...dadosPostagem}
-            usuarioLogado={usuarioLogado}
-          />
-        ))
-      }
+      {listaDePostagens.map((dadosPostagem) => (
+        <Postagem
+          key={dadosPostagem.id}
+          {...dadosPostagem}
+          usuarioLogado={usuarioLogado}
+          onDelete={handleDelete}
+        />
+      ))}
     </div>
   );
 }

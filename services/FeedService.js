@@ -23,4 +23,8 @@ export default class FeedService extends DevagramApiService {
     async fazerPublicacao(dadosPublicacao) {
         return this.post('/publicacao', dadosPublicacao);
     }
+
+    async  excluirPublicacao(postId) {
+    return this.delete(`/publicacao?postId=${postId}`);
+}
 }
