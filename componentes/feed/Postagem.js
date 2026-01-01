@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Avatar from "../avatar";
@@ -30,6 +30,31 @@ export default function Postagem({
         tamanhoLimiteDescricao
     );
     const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
+
+    // ✅ NOVO: modal para imagem grande
+    const [mostrarModalImagem, setMostrarModalImagem] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setMostrarModalImagem(false);
+                setMostrarModalExclusao(false);
+            }
+        };
+
+        if (mostrarModalImagem || mostrarModalExclusao) {
+            document.addEventListener("keydown", handleKeyDown);
+            // trava o scroll do body quando modal estiver aberto
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.body.style.overflow = "auto";
+        };
+    }, [mostrarModalImagem, mostrarModalExclusao]);
 
     const excluirPublicacao = async () => {
         try {
@@ -120,6 +145,10 @@ export default function Postagem({
             : imgCurtir;
     }
 
+    // ✅ NOVO: abrir/fechar modal da imagem
+    const abrirImagem = () => setMostrarModalImagem(true);
+    const fecharImagem = () => setMostrarModalImagem(false);
+
     return (
         <div className="postagem">
             <section className="cabecalhoPostagem">
@@ -144,7 +173,14 @@ export default function Postagem({
             </section>
 
             <div className="fotoDaPostagem">
-                <img src={fotoDoPost} alt='foto da postagem' />
+                <img
+                    src={fotoDoPost}
+                    alt='foto da postagem'
+                    onClick={abrirImagem}
+                    role="button"
+                    aria-label="Abrir foto em tela cheia"
+                    className="fotoClicavel"
+                />
             </div>
 
             <div className="rodapeDaPostagem">
@@ -198,9 +234,32 @@ export default function Postagem({
                 <FazerComentario comentar={comentar} usuarioLogado={usuarioLogado} />
             }
 
+            {/* ✅ Modal da imagem */}
+            {mostrarModalImagem && (
+                <div className="modalOverlay imagemOverlay" onClick={fecharImagem}>
+                    <div className="modalImagem" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="fecharModalImagem"
+                            onClick={fecharImagem}
+                            aria-label="Fechar imagem"
+                            type="button"
+                        >
+                            ×
+                        </button>
+
+                        <img
+                            src={fotoDoPost}
+                            alt="Foto ampliada"
+                            className="imagemAmpliada"
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de exclusão (já existia) */}
             {mostrarModalExclusao && (
-                <div className="modalOverlay">
-                    <div className="modal">
+                <div className="modalOverlay" onClick={cancelarExclusao}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
                         <p>Deseja realmente excluir esta publicação?</p>
                         <div className="modalButtons">
                             <button className="modalButton confirm" onClick={confirmarExclusao}>
