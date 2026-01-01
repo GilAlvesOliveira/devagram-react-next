@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Avatar from "../avatar";
@@ -31,8 +31,15 @@ export default function Postagem({
     );
     const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
 
-    // ✅ NOVO: modal para imagem grande
+    // Modal de imagem grande
     const [mostrarModalImagem, setMostrarModalImagem] = useState(false);
+
+    // ✅ Feedback visual rápido ao curtir
+    const [mostrarFeedbackCurtida, setMostrarFeedbackCurtida] = useState(false);
+
+    // ✅ Controle para não abrir modal quando for double click/tap
+    const singleClickTimerRef = useRef(null);
+    const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -44,7 +51,6 @@ export default function Postagem({
 
         if (mostrarModalImagem || mostrarModalExclusao) {
             document.addEventListener("keydown", handleKeyDown);
-            // trava o scroll do body quando modal estiver aberto
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "auto";
@@ -55,6 +61,12 @@ export default function Postagem({
             document.body.style.overflow = "auto";
         };
     }, [mostrarModalImagem, mostrarModalExclusao]);
+
+    useEffect(() => {
+        return () => {
+            if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+        };
+    }, []);
 
     const excluirPublicacao = async () => {
         try {
@@ -124,6 +136,7 @@ export default function Postagem({
     const alterarCurtida = async () => {
         try {
             await feedService.alterarCurtida(id);
+
             if (usuarioLogadoCurtiuPostagem()) {
                 setCurtidasPostagem(
                     curtidasPostagem.filter(idUsuarioQueCurtiu => idUsuarioQueCurtiu !== usuarioLogado.id)
@@ -133,6 +146,10 @@ export default function Postagem({
                     ...curtidasPostagem,
                     usuarioLogado.id
                 ]);
+
+                // ✅ Feedback visual só quando estiver curtindo (não descurtir)
+                setMostrarFeedbackCurtida(true);
+                setTimeout(() => setMostrarFeedbackCurtida(false), 600);
             }
         } catch (e) {
             alert(`Erro ao alterar a curtida! ${e?.response?.data?.erro || ''}`);
@@ -145,9 +162,57 @@ export default function Postagem({
             : imgCurtir;
     }
 
-    // ✅ NOVO: abrir/fechar modal da imagem
     const abrirImagem = () => setMostrarModalImagem(true);
     const fecharImagem = () => setMostrarModalImagem(false);
+
+    // ✅ Clique único: abre modal (com delay pra permitir cancelar se virar double click)
+    const handleImagemClick = () => {
+        if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+
+        singleClickTimerRef.current = setTimeout(() => {
+            abrirImagem();
+        }, 240); // tempo curto pra diferenciar de double click
+    };
+
+    // ✅ Desktop: double click curte e NÃO abre modal
+    const handleImagemDoubleClick = () => {
+        if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+        alterarCurtida();
+    };
+
+    // ✅ Mobile: double tap para curtir/descurtir
+    const handleTouchStart = (e) => {
+        // Pegamos o primeiro touch
+        const touch = e.touches && e.touches[0];
+        if (!touch) return;
+
+        const now = Date.now();
+        const last = lastTapRef.current;
+
+        const timeDiff = now - last.time;
+        const dx = Math.abs(touch.clientX - last.x);
+        const dy = Math.abs(touch.clientY - last.y);
+
+        // thresholds
+        const isDoubleTap = timeDiff > 0 && timeDiff < 300 && dx < 25 && dy < 25;
+
+        if (isDoubleTap) {
+            if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+            // evita zoom duplo do navegador em alguns devices
+            e.preventDefault?.();
+            alterarCurtida();
+            lastTapRef.current = { time: 0, x: 0, y: 0 };
+            return;
+        }
+
+        lastTapRef.current = { time: now, x: touch.clientX, y: touch.clientY };
+
+        // Comportamento de 1 toque (abre modal) com delay para cancelar se virar double tap
+        if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+        singleClickTimerRef.current = setTimeout(() => {
+            abrirImagem();
+        }, 240);
+    };
 
     return (
         <div className="postagem">
@@ -175,19 +240,27 @@ export default function Postagem({
             <div className="fotoDaPostagem">
                 <img
                     src={fotoDoPost}
-                    alt='foto da postagem'
-                    onClick={abrirImagem}
+                    alt="foto da postagem"
+                    onClick={handleImagemClick}
+                    onDoubleClick={handleImagemDoubleClick}
+                    onTouchStart={handleTouchStart}
                     role="button"
-                    aria-label="Abrir foto em tela cheia"
+                    aria-label="Abrir foto (1 toque) ou curtir (2 toques)"
                     className="fotoClicavel"
                 />
+
+                {mostrarFeedbackCurtida && (
+                    <div className="feedbackCurtida" aria-hidden="true">
+                        <Image src={imgCurtido} alt="" width={70} height={70} />
+                    </div>
+                )}
             </div>
 
             <div className="rodapeDaPostagem">
                 <div className="acoesDaPostagem">
                     <Image
                         src={obterImagemCurtida()}
-                        alt='icone curtir'
+                        alt="icone curtir"
                         width={20}
                         height={20}
                         onClick={alterarCurtida}
@@ -195,7 +268,7 @@ export default function Postagem({
 
                     <Image
                         src={obterImagemComentario()}
-                        alt='icone comentar'
+                        alt="icone comentar"
                         width={20}
                         height={20}
                         onClick={() => setDeveExibirSecaoParaComentar(!deveExibirSecaoParaComentar)}
@@ -213,7 +286,8 @@ export default function Postagem({
                         {descricaoMaiorQueLimite() && (
                             <span
                                 onClick={exibirDescricaoCompleta}
-                                className="exibirDescricaoCompleta">
+                                className="exibirDescricaoCompleta"
+                            >
                                 mais
                             </span>
                         )}
@@ -234,7 +308,7 @@ export default function Postagem({
                 <FazerComentario comentar={comentar} usuarioLogado={usuarioLogado} />
             }
 
-            {/* ✅ Modal da imagem */}
+            {/* Modal da imagem */}
             {mostrarModalImagem && (
                 <div className="modalOverlay imagemOverlay" onClick={fecharImagem}>
                     <div className="modalImagem" onClick={(e) => e.stopPropagation()}>
@@ -256,7 +330,7 @@ export default function Postagem({
                 </div>
             )}
 
-            {/* Modal de exclusão (já existia) */}
+            {/* Modal de exclusão */}
             {mostrarModalExclusao && (
                 <div className="modalOverlay" onClick={cancelarExclusao}>
                     <div className="modal" onClick={(e) => e.stopPropagation()}>

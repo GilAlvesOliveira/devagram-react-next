@@ -41,6 +41,8 @@
         }
 
         .fotoDaPostagem {
+            position: relative;
+
             img {
                 width: 100%;
                 height: auto;
@@ -48,14 +50,33 @@
                 object-fit: cover;
             }
 
-            // ✅ NOVO: indica que dá pra clicar
             .fotoClicavel {
                 cursor: zoom-in;
                 transition: opacity 0.2s;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation; // ajuda a não dar zoom duplo em alguns browsers
             }
 
             .fotoClicavel:hover {
                 opacity: 0.95;
+            }
+
+            /* ✅ Feedback do coração ao curtir */
+            .feedbackCurtida {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                pointer-events: none;
+                animation: fadeInOut 0.6s ease-in-out;
+            }
+
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: scale(0.8); }
+                20% { opacity: 1; transform: scale(1.0); }
+                80% { opacity: 1; transform: scale(1.0); }
+                100% { opacity: 0; transform: scale(0.9); }
             }
         }
 
@@ -225,7 +246,7 @@
     opacity: 0.9;
 }
 
-/* ✅ NOVO: Modal de imagem grande */
+/* Modal de imagem grande */
 .imagemOverlay {
     background: rgba(0, 0, 0, 0.85);
 }
