@@ -13,6 +13,10 @@ import FeedService from "@/services/FeedService";
 const tamanhoLimiteDescricao = 89;
 const feedService = new FeedService();
 
+// ✅ Ajustes de toque (mobile)
+const TEMPO_DUO_TAP_MS = 300;
+const MOVE_THRESHOLD_PX = 12; // passou disso, consideramos scroll/arrasto
+
 export default function Postagem({
     id,
     usuario,
@@ -40,6 +44,10 @@ export default function Postagem({
     // ✅ Controle para não abrir modal quando for double click/tap
     const singleClickTimerRef = useRef(null);
     const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
+
+    // ✅ Controle de scroll no mobile
+    const touchStartRef = useRef({ x: 0, y: 0 });
+    const isScrollingRef = useRef(false);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -180,34 +188,58 @@ export default function Postagem({
         alterarCurtida();
     };
 
-    // ✅ Mobile: double tap para curtir/descurtir
+    // ✅ Mobile: touch start (não decide nada ainda)
     const handleTouchStart = (e) => {
-        // Pegamos o primeiro touch
         const touch = e.touches && e.touches[0];
         if (!touch) return;
+
+        touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+        isScrollingRef.current = false;
+    };
+
+    // ✅ Mobile: se mexeu muito, é scroll -> cancela qualquer abertura
+    const handleTouchMove = (e) => {
+        const touch = e.touches && e.touches[0];
+        if (!touch) return;
+
+        const dx = Math.abs(touch.clientX - touchStartRef.current.x);
+        const dy = Math.abs(touch.clientY - touchStartRef.current.y);
+
+        if (dx > MOVE_THRESHOLD_PX || dy > MOVE_THRESHOLD_PX) {
+            isScrollingRef.current = true;
+            if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
+        }
+    };
+
+    // ✅ Mobile: decide no touch end (tap / double tap / scroll)
+    const handleTouchEnd = () => {
+        // se estava scrollando, não faz nada
+        if (isScrollingRef.current) return;
 
         const now = Date.now();
         const last = lastTapRef.current;
 
         const timeDiff = now - last.time;
-        const dx = Math.abs(touch.clientX - last.x);
-        const dy = Math.abs(touch.clientY - last.y);
+        const dx = Math.abs(touchStartRef.current.x - last.x);
+        const dy = Math.abs(touchStartRef.current.y - last.y);
 
-        // thresholds
-        const isDoubleTap = timeDiff > 0 && timeDiff < 300 && dx < 25 && dy < 25;
+        const isDoubleTap = timeDiff > 0 && timeDiff < TEMPO_DUO_TAP_MS && dx < 25 && dy < 25;
 
         if (isDoubleTap) {
             if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
-            // evita zoom duplo do navegador em alguns devices
-            e.preventDefault?.();
             alterarCurtida();
             lastTapRef.current = { time: 0, x: 0, y: 0 };
             return;
         }
 
-        lastTapRef.current = { time: now, x: touch.clientX, y: touch.clientY };
+        // atualiza último tap
+        lastTapRef.current = {
+            time: now,
+            x: touchStartRef.current.x,
+            y: touchStartRef.current.y
+        };
 
-        // Comportamento de 1 toque (abre modal) com delay para cancelar se virar double tap
+        // toque simples: abre modal (com delay, pra permitir virar double tap)
         if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
         singleClickTimerRef.current = setTimeout(() => {
             abrirImagem();
@@ -244,6 +276,8 @@ export default function Postagem({
                     onClick={handleImagemClick}
                     onDoubleClick={handleImagemDoubleClick}
                     onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
                     role="button"
                     aria-label="Abrir foto (1 toque) ou curtir (2 toques)"
                     className="fotoClicavel"
