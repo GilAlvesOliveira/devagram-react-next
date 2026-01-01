@@ -13,6 +13,18 @@
             align-items: center;
             padding: 16px 16px 24px;
 
+            // ✅ wrapper clicável do avatar
+            .avatarClicavel {
+                display: inline-flex;
+                cursor: zoom-in;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            .avatarSemClique {
+                cursor: default;
+            }
+
             .avatar {
                 height: 85px;
                 width: 85px;
@@ -22,7 +34,7 @@
                 background-origin: border-box;
                 background-clip: content-box,border-box;
             }
-        
+
             .informacoesPerfil {
                 flex: 1;
                 display: flex;
@@ -55,6 +67,63 @@
                 }
             }
         }
+    }
+
+    /* ✅ Modal de imagem (foto de perfil ampliada) */
+    .modalOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .imagemOverlay {
+        background: rgba(0, 0, 0, 0.85);
+    }
+
+    .modalImagem {
+        position: relative;
+        max-width: min(95vw, 980px);
+        max-height: 90vh;
+        width: 95vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .imagemAmpliada {
+        max-width: 100%;
+        max-height: 90vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 10px;
+    }
+
+    .fecharModalImagem {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
+        line-height: 1;
+        background: white;
+        color: #111;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .fecharModalImagem:hover {
+        opacity: 0.9;
     }
 
     @media screen and (min-width: $desktopBreakpoint) {
@@ -147,4 +216,4 @@
             }
         }
     }
-}  
+}
