@@ -13,9 +13,9 @@ import FeedService from "@/services/FeedService";
 const tamanhoLimiteDescricao = 89;
 const feedService = new FeedService();
 
-// ✅ Ajustes de toque (mobile)
+// Ajustes de toque (mobile)
 const TEMPO_DUO_TAP_MS = 300;
-const MOVE_THRESHOLD_PX = 12; // passou disso, consideramos scroll/arrasto
+const MOVE_THRESHOLD_PX = 12;
 
 export default function Postagem({
     id,
@@ -30,22 +30,24 @@ export default function Postagem({
     const [curtidasPostagem, setCurtidasPostagem] = useState(curtidas);
     const [comentariosPostagem, setComentariosPostagem] = useState(comentarios);
     const [deveExibirSecaoParaComentar, setDeveExibirSecaoParaComentar] = useState(false);
-    const [tamanhoAtualDaDescricao, setTamanhoAtualDaDescricao] = useState(
-        tamanhoLimiteDescricao
-    );
+    const [tamanhoAtualDaDescricao, setTamanhoAtualDaDescricao] = useState(tamanhoLimiteDescricao);
     const [mostrarModalExclusao, setMostrarModalExclusao] = useState(false);
 
-    // Modal de imagem grande
+    // Modal imagem
     const [mostrarModalImagem, setMostrarModalImagem] = useState(false);
-
-    // ✅ Feedback visual rápido ao curtir
     const [mostrarFeedbackCurtida, setMostrarFeedbackCurtida] = useState(false);
 
-    // ✅ Controle para não abrir modal quando for double click/tap
+    // ✅ Modal curtidas
+    const [mostrarModalCurtidas, setMostrarModalCurtidas] = useState(false);
+    const [listaUsuariosCurtidas, setListaUsuariosCurtidas] = useState([]);
+    const [carregandoCurtidas, setCarregandoCurtidas] = useState(false);
+    const [erroCurtidas, setErroCurtidas] = useState("");
+
+    // Controle de clique vs double click/tap
     const singleClickTimerRef = useRef(null);
     const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
 
-    // ✅ Controle de scroll no mobile
+    // Controle de scroll no mobile
     const touchStartRef = useRef({ x: 0, y: 0 });
     const isScrollingRef = useRef(false);
 
@@ -54,10 +56,11 @@ export default function Postagem({
             if (e.key === "Escape") {
                 setMostrarModalImagem(false);
                 setMostrarModalExclusao(false);
+                setMostrarModalCurtidas(false);
             }
         };
 
-        if (mostrarModalImagem || mostrarModalExclusao) {
+        if (mostrarModalImagem || mostrarModalExclusao || mostrarModalCurtidas) {
             document.addEventListener("keydown", handleKeyDown);
             document.body.style.overflow = "hidden";
         } else {
@@ -68,13 +71,67 @@ export default function Postagem({
             document.removeEventListener("keydown", handleKeyDown);
             document.body.style.overflow = "auto";
         };
-    }, [mostrarModalImagem, mostrarModalExclusao]);
+    }, [mostrarModalImagem, mostrarModalExclusao, mostrarModalCurtidas]);
 
     useEffect(() => {
         return () => {
             if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
         };
     }, []);
+
+    // ✅ Normaliza o retorno do backend para [{id, nome, avatar}]
+    const normalizarUsuariosCurtidas = (data) => {
+        // exemplos possíveis:
+        // 1) [{id, nome, avatar}]
+        // 2) [{_id, nome, avatar}]
+        // 3) { usuarios: [...] }
+        // 4) { curtidas: [...] }
+        // 5) array de ids (string) -> fallback não ideal
+        const lista =
+            Array.isArray(data) ? data :
+            Array.isArray(data?.usuarios) ? data.usuarios :
+            Array.isArray(data?.curtidas) ? data.curtidas :
+            [];
+
+        // se veio só ids: ["id1","id2"]
+        if (lista.length && typeof lista[0] === "string") {
+            return lista.map((idUsuario) => ({
+                id: idUsuario,
+                nome: idUsuario,
+                avatar: null
+            }));
+        }
+
+        // se veio objetos
+        return lista.map((u) => ({
+            id: u.id || u._id || u.idUsuario,
+            nome: u.nome || u.username || u.email || "Usuário",
+            avatar: u.avatar || u.foto || null
+        })).filter(u => !!u.id);
+    };
+
+    // ✅ Carrega curtidas ao abrir modal
+    useEffect(() => {
+        const carregarCurtidas = async () => {
+            if (!mostrarModalCurtidas) return;
+
+            setErroCurtidas("");
+            setCarregandoCurtidas(true);
+            setListaUsuariosCurtidas([]);
+
+            try {
+                const { data } = await feedService.listarCurtidas(id);
+                const lista = normalizarUsuariosCurtidas(data);
+                setListaUsuariosCurtidas(lista);
+            } catch (e) {
+                setErroCurtidas(`Erro ao carregar curtidas! ${e?.response?.data?.erro || ''}`);
+            } finally {
+                setCarregandoCurtidas(false);
+            }
+        };
+
+        carregarCurtidas();
+    }, [mostrarModalCurtidas, id]);
 
     const excluirPublicacao = async () => {
         try {
@@ -84,42 +141,30 @@ export default function Postagem({
         } catch (e) {
             alert(`Erro ao excluir publicação! ${e?.response?.data?.erro || ''}`);
         }
-    }
+    };
 
-    const handleExcluirClick = () => {
-        setMostrarModalExclusao(true);
-    }
+    const handleExcluirClick = () => setMostrarModalExclusao(true);
 
     const confirmarExclusao = () => {
         setMostrarModalExclusao(false);
         excluirPublicacao();
-    }
+    };
 
-    const cancelarExclusao = () => {
-        setMostrarModalExclusao(false);
-    }
+    const cancelarExclusao = () => setMostrarModalExclusao(false);
 
-    const exibirDescricaoCompleta = () => {
-        setTamanhoAtualDaDescricao(Number.MAX_SAFE_INTEGER);
-    }
+    const exibirDescricaoCompleta = () => setTamanhoAtualDaDescricao(Number.MAX_SAFE_INTEGER);
 
-    const descricaoMaiorQueLimite = () => {
-        return descricao.length > tamanhoAtualDaDescricao;
-    }
+    const descricaoMaiorQueLimite = () => descricao.length > tamanhoAtualDaDescricao;
 
     const obterDescricao = () => {
         let mensagem = descricao.substring(0, tamanhoAtualDaDescricao);
-        if (descricaoMaiorQueLimite()) {
-            mensagem += '...';
-        }
+        if (descricaoMaiorQueLimite()) mensagem += '...';
         return mensagem;
-    }
+    };
 
-    const obterImagemComentario = () => {
-        return deveExibirSecaoParaComentar
-            ? imgComentarioAtivo
-            : imgComentarioCinza;
-    }
+    const obterImagemComentario = () => (
+        deveExibirSecaoParaComentar ? imgComentarioAtivo : imgComentarioCinza
+    );
 
     const comentar = async (comentario) => {
         try {
@@ -127,19 +172,14 @@ export default function Postagem({
             setDeveExibirSecaoParaComentar(false);
             setComentariosPostagem([
                 ...comentariosPostagem,
-                {
-                    nome: usuarioLogado.nome,
-                    mensagem: comentario
-                }
+                { nome: usuarioLogado.nome, mensagem: comentario }
             ]);
         } catch (e) {
             alert(`Erro ao fazer comentario! ${e?.response?.data?.erro || ''}`);
         }
-    }
+    };
 
-    const usuarioLogadoCurtiuPostagem = () => {
-        return curtidasPostagem.includes(usuarioLogado.id);
-    }
+    const usuarioLogadoCurtiuPostagem = () => curtidasPostagem.includes(usuarioLogado.id);
 
     const alterarCurtida = async () => {
         try {
@@ -147,48 +187,39 @@ export default function Postagem({
 
             if (usuarioLogadoCurtiuPostagem()) {
                 setCurtidasPostagem(
-                    curtidasPostagem.filter(idUsuarioQueCurtiu => idUsuarioQueCurtiu !== usuarioLogado.id)
+                    curtidasPostagem.filter(uid => uid !== usuarioLogado.id)
                 );
             } else {
-                setCurtidasPostagem([
-                    ...curtidasPostagem,
-                    usuarioLogado.id
-                ]);
-
-                // ✅ Feedback visual só quando estiver curtindo (não descurtir)
+                setCurtidasPostagem([...curtidasPostagem, usuarioLogado.id]);
                 setMostrarFeedbackCurtida(true);
                 setTimeout(() => setMostrarFeedbackCurtida(false), 600);
             }
         } catch (e) {
             alert(`Erro ao alterar a curtida! ${e?.response?.data?.erro || ''}`);
         }
-    }
+    };
 
-    const obterImagemCurtida = () => {
-        return usuarioLogadoCurtiuPostagem()
-            ? imgCurtido
-            : imgCurtir;
-    }
+    const obterImagemCurtida = () => (usuarioLogadoCurtiuPostagem() ? imgCurtido : imgCurtir);
 
     const abrirImagem = () => setMostrarModalImagem(true);
     const fecharImagem = () => setMostrarModalImagem(false);
 
-    // ✅ Clique único: abre modal (com delay pra permitir cancelar se virar double click)
+    // Clique único abre modal de imagem
     const handleImagemClick = () => {
         if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
 
         singleClickTimerRef.current = setTimeout(() => {
             abrirImagem();
-        }, 240); // tempo curto pra diferenciar de double click
+        }, 240);
     };
 
-    // ✅ Desktop: double click curte e NÃO abre modal
+    // Double click curte
     const handleImagemDoubleClick = () => {
         if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
         alterarCurtida();
     };
 
-    // ✅ Mobile: touch start (não decide nada ainda)
+    // Touch handlers (mobile)
     const handleTouchStart = (e) => {
         const touch = e.touches && e.touches[0];
         if (!touch) return;
@@ -197,7 +228,6 @@ export default function Postagem({
         isScrollingRef.current = false;
     };
 
-    // ✅ Mobile: se mexeu muito, é scroll -> cancela qualquer abertura
     const handleTouchMove = (e) => {
         const touch = e.touches && e.touches[0];
         if (!touch) return;
@@ -211,9 +241,7 @@ export default function Postagem({
         }
     };
 
-    // ✅ Mobile: decide no touch end (tap / double tap / scroll)
     const handleTouchEnd = () => {
-        // se estava scrollando, não faz nada
         if (isScrollingRef.current) return;
 
         const now = Date.now();
@@ -232,18 +260,29 @@ export default function Postagem({
             return;
         }
 
-        // atualiza último tap
         lastTapRef.current = {
             time: now,
             x: touchStartRef.current.x,
             y: touchStartRef.current.y
         };
 
-        // toque simples: abre modal (com delay, pra permitir virar double tap)
         if (singleClickTimerRef.current) clearTimeout(singleClickTimerRef.current);
         singleClickTimerRef.current = setTimeout(() => {
             abrirImagem();
         }, 240);
+    };
+
+    // ✅ Modal curtidas
+    const temCurtidas = curtidasPostagem?.length > 0;
+
+    const abrirModalCurtidas = () => {
+        if (!temCurtidas) return;
+        setMostrarModalCurtidas(true);
+    };
+
+    const fecharModalCurtidas = () => {
+        setMostrarModalCurtidas(false);
+        setErroCurtidas("");
     };
 
     return (
@@ -255,6 +294,7 @@ export default function Postagem({
                         <strong>{usuario.nome}</strong>
                     </div>
                 </Link>
+
                 {usuario.id === usuarioLogado.id && (
                     <Image
                         src={deleteIcon}
@@ -309,7 +349,18 @@ export default function Postagem({
                     />
 
                     <span className="quantidadeCurtidas">
-                        Curtido por <strong>{curtidasPostagem.length} pessoas</strong>
+                        Curtido por{" "}
+                        <strong>
+                            {curtidasPostagem.length}{" "}
+                            <span
+                                className={temCurtidas ? "linkCurtidas" : ""}
+                                onClick={abrirModalCurtidas}
+                                role={temCurtidas ? "button" : undefined}
+                                aria-label={temCurtidas ? "Ver pessoas que curtiram" : undefined}
+                            >
+                                pessoas
+                            </span>
+                        </strong>
                     </span>
                 </div>
 
@@ -360,6 +411,54 @@ export default function Postagem({
                             alt="Foto ampliada"
                             className="imagemAmpliada"
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* ✅ Modal de curtidas */}
+            {mostrarModalCurtidas && (
+                <div className="modalOverlay" onClick={fecharModalCurtidas}>
+                    <div className="modalCurtidas" onClick={(e) => e.stopPropagation()}>
+                        <div className="modalCurtidasHeader">
+                            <h3>Curtidas</h3>
+                            <button
+                                className="fecharModalCurtidas"
+                                onClick={fecharModalCurtidas}
+                                aria-label="Fechar curtidas"
+                                type="button"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {carregandoCurtidas && (
+                            <p className="modalCurtidasStatus">Carregando...</p>
+                        )}
+
+                        {!carregandoCurtidas && erroCurtidas && (
+                            <p className="modalCurtidasStatus erro">{erroCurtidas}</p>
+                        )}
+
+                        {!carregandoCurtidas && !erroCurtidas && (
+                            <div className="listaCurtidas">
+                                {listaUsuariosCurtidas.length > 0 ? (
+                                    listaUsuariosCurtidas.map((u) => (
+                                        <Link href={`/perfil/${u.id}`} key={u.id}>
+                                            <div className="itemCurtida" role="button">
+                                                {u.avatar ? (
+                                                    <Avatar src={u.avatar} />
+                                                ) : (
+                                                    <div className="avatarPlaceholder" />
+                                                )}
+                                                <span className="nomeCurtida">{u.nome}</span>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <p className="modalCurtidasStatus">Nenhuma curtida encontrada.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

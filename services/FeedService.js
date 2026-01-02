@@ -20,11 +20,23 @@ export default class FeedService extends DevagramApiService {
         return this.put(`/like?id=${idPostagem}`);
     }
 
+    async listarCurtidas(idPostagem) {
+        try {
+            return await this.get(`/like?id=${idPostagem}`);
+        } catch (e1) {
+            try {
+                return await this.get(`/curtidas?id=${idPostagem}`);
+            } catch (e2) {
+                return this.get(`/publicacao/curtidas?id=${idPostagem}`);
+            }
+        }
+    }
+
     async fazerPublicacao(dadosPublicacao) {
         return this.post('/publicacao', dadosPublicacao);
     }
 
-    async  excluirPublicacao(postId) {
-    return this.delete(`/publicacao?postId=${postId}`);
-}
+    async excluirPublicacao(postId) {
+        return this.delete(`/publicacao?postId=${postId}`);
+    }
 }
